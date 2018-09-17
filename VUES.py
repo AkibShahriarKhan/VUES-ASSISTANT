@@ -2,6 +2,7 @@ from gtts import gTTS
 import speech_recognition as sr
 import os
 import re
+from subprocess import call
 import webbrowser
 import smtplib
 import requests
@@ -12,19 +13,24 @@ import pyttsx3
 import win32com.client as wincl
 speak = wincl.Dispatch("SAPI.SpVoice")
 from weather import Weather
+from pynput.keyboard import Key, Controller
+keyboard = Controller()
+
+#name=""
+
 
 
 
 def myCommand():
     "listens for commands"
-
+    
     r = sr.Recognizer()
 
     with sr.Microphone() as source:
         print("Ready...")
-        speak.Speak("Ready")
+        speak.Speak("ready")
         r.pause_threshold = 1
-        r.adjust_for_ambient_noise(source, duration=1)
+        r.adjust_for_ambient_noise(source, duration=.5)
         audio = r.listen(source)
 
     try:
@@ -43,15 +49,32 @@ def myCommand():
 def assistant(command):
     "if statements for executing commands"
 
-    if "open reddit" in command:
-        reg_ex = re.search("open reddit (.*)", command)
-        url = "https://www.reddit.com/"
+    if "login portal" in command:
+        reg_ex = re.search("open portal (.*)", command)
+        url = "https://portal.aiub.edu/"
         if reg_ex:
             subreddit = reg_ex.group(1)
             url = url + "r/" + subreddit
         webbrowser.open(url)
         print("Done!")
-        speak.Speak("Done!")
+        
+        keyboard.press(Key.cmd)
+        keyboard.press(Key.ctrl)
+        keyboard.press('o')
+        keyboard.release('o')
+        keyboard.release(Key.ctrl)
+        keyboard.release(Key.cmd)
+        #print("Done!")
+
+        speak.Speak("please provide your id and password")
+
+
+
+    elif "open calculator" in command:
+        call(["calc.exe"])
+        print("Done!")
+        
+
 
     elif "open website" in command:
         reg_ex = re.search("open website (.+)", command)
@@ -63,8 +86,10 @@ def assistant(command):
         else:
             pass
 
-    elif "what\"s up" in command:
+    elif "what's up" in command:
         speak.Speak("Just doing my thing")
+
+
     elif "joke" in command:
         res = requests.get(
                 "https://icanhazdadjoke.com/",
@@ -82,7 +107,7 @@ def assistant(command):
             weather = Weather()
             location = weather.lookup_by_location(city)
             condition = location.condition()
-            speak.Speak("The Current weather in %s is %s The tempeture is %.1f degree" % (city, condition.text(), (int(condition.temp())-32)/1.8))
+            speak.Speak("The Current weather in %s is %s The temperature is %.1f degree" % (city, condition.text(), (int(condition.temp())-32)/1.8))
 
     elif "weather forecast in" in command:
         reg_ex = re.search("weather forecast in (.*)", command)
@@ -125,11 +150,11 @@ def assistant(command):
             speak.Speak("Email sent.")
 
         else:
-            speak.Speak("I don\"t know what you mean!")
+            speak.Speak("I don't know what you mean!")
             
 
 
-speak.Speak("I am ready for your command")
+#speak.Speak("I am ready for your command")
 
 #loop to continue executing multiple commands
 while True:
