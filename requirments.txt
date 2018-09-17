@@ -11,3 +11,7 @@ SpeechRecognition==3.8.1
 urllib3==1.22
 beautifulsoup4==4.6.0
 weather-api==0.0.4
+gTTS
+pyttsx3
+pynput
+pypiwin32
